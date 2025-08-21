@@ -3,6 +3,13 @@
 {% block body %}
     <section class="about-body">
         <h2>Liste des choses à faire</h2>
+        <ul class="wish-list">
+            {% for wish in wishes %}
+            <li>
+                <a href="{{ path('wish_detail', {'id': wish.id}) }}">{{ wish.title }}</a>
+            </li>
+            {% endfor %}
+        </ul>
     </section>
 {% endblock %}
 

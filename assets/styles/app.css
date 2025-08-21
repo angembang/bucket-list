@@ -44,4 +44,20 @@ footer {
     padding: 2rem;
 }
 
+.wish-list {
+    margin-top: 2rem;
+}
+
+.wish-list li {
+    padding: 1rem;
+}
+
+.wish-list li a {
+    font-size: 16px;
+}
+
+.detail-element {
+    padding: 1rem;
+}
+
 

@@ -1,5 +1,10 @@
 {% extends "base.html.twig" %}
 
 {% block body %}
-    <h2>Détail du tâche</h2>
+    <section class="about-body">
+        <h2 class="detail-element">{{ wish.title }}</h2>
+        <p class="detail-element">Description: {{ wish.description | nl2br}}</p>
+        <p class="detail-element">Auteur: {{ wish.author }}</p>
+        <p class="detail-element">Date de création: {{ wish.dateCreated | date('d-m-Y H:i')}}</p>
+    </section>
 {% endblock %}
