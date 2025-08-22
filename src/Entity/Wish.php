@@ -5,8 +5,10 @@ namespace App\Entity;
 use App\Repository\WishRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: WishRepository::class)]
+#[ORM\HasLifecycleCallbacks]
 class Wish
 {
     #[ORM\Id]
@@ -14,18 +16,40 @@ class Wish
     #[ORM\Column]
     private ?int $id = null;
 
+    #[Assert\NotBlank(message: "the field title is required")]
+    #[Assert\Length(
+        min: 2,
+        max: 250,
+        minMessage: "the field name can't be less than 2 characters",
+        maxMessage: "the field name can't be more than 255 characters"
+    )]
     #[ORM\Column(length: 250)]
     private ?string $title = null;
 
+    #[Assert\NotBlank(message: "the field name is required")]
+    #[Assert\Length(
+        min: 2,
+        max: 500,
+        minMessage: "the field name can't be less than 2 characters",
+        maxMessage: "the field name can't be more than 500 characters"
+    )]
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
 
+    #[Assert\NotBlank(message: "the field name is required")]
+    #[Assert\Length(
+        min: 2,
+        max: 50,
+        minMessage: "the field name can't be less than 2 characters",
+        maxMessage: "the field name can't be more than 50 characters"
+    )]
     #[ORM\Column(length: 50)]
     private ?string $author = null;
 
     #[ORM\Column]
-    private bool $isPublished = false;
+    private bool $isPublished;
 
+    #[Assert\LessThan(propertyPath: "dateUpdated")]
     #[ORM\Column]
     private ?\DateTime $dateCreated = null;
 
@@ -107,5 +131,17 @@ class Wish
         $this->dateUpdated = $dateUpdated;
 
         return $this;
+    }
+
+    #[ORM\PrePersist]
+    public function insertIsPublisedData(){
+        $this->setIsPublished(true);
+        $this->setDateCreated(new \DateTime());
+        $this->setDateUpdated = null;
+    }
+
+    #[ORM\PreUpdate]
+    public function updateDate(){
+        $this->setDateUpdated(new \DateTime());
     }
 }
