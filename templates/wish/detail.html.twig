@@ -3,8 +3,15 @@
 {% block body %}
     <section class="about-body">
         <h2 class="detail-element">{{ wish.title }}</h2>
+        <div>
+            <img src="{{ asset('uploads/wish/' ~ wish.wishImage) }}" alt="">
+        </div>
         <p class="detail-element">Description: {{ wish.description | nl2br}}</p>
         <p class="detail-element">Auteur: {{ wish.author }}</p>
         <p class="detail-element">Date de création: {{ wish.dateCreated | date('d-m-Y H:i')}}</p>
+        <div>
+            <p><a href="{{ path('wish_update', { 'id': wish.id}) }}"><button>Modifier</button></a></p>
+            <p><a onclick="return confirm('Etes-vous sûr de vouloir supprimer {{ wish.title }} ?')" href="{{ path('wish_delete', {'id': wish.id}) }}"><button>Supprimer</button></a></p>
+        </div>
     </section>
 {% endblock %}

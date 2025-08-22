@@ -4,12 +4,10 @@
     {% form_theme wishForm 'bootstrap_5_layout.html.twig' %}
 
     <section class="about-body">
-        <h2>Formulaire d'ajout du souhait </h2>
-
-        {{ form_start(wishForm) }}
-        {{ form_widget(wishForm) }}
-        <button class="btn btn-primary mt-3">Ajouter</button>
-        {{ form_end(wishForm) }}
+            {% embed 'wish/form/wish-form.html.twig' %}
+                {% block formTitle %}Ajouter un souhait{% endblock %}
+                {% block buttonLabel %}Ajouter{% endblock %}
+            {% endembed %}
     </section>
 
 {% endblock %}
