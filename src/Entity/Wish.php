@@ -26,25 +26,15 @@ class Wish
     #[ORM\Column(length: 250)]
     private ?string $title = null;
 
-    #[Assert\NotBlank(message: "the field name is required")]
+    #[Assert\NotBlank(message: "the description name is required")]
     #[Assert\Length(
         min: 2,
         max: 500,
-        minMessage: "the field name can't be less than 2 characters",
-        maxMessage: "the field name can't be more than 500 characters"
+        minMessage: "the field description can't be less than 2 characters",
+        maxMessage: "the field description can't be more than 500 characters"
     )]
     #[ORM\Column(type: Types::TEXT)]
     private ?string $description = null;
-
-    #[Assert\NotBlank(message: "the field name is required")]
-    #[Assert\Length(
-        min: 2,
-        max: 50,
-        minMessage: "the field name can't be less than 2 characters",
-        maxMessage: "the field name can't be more than 50 characters"
-    )]
-    #[ORM\Column(length: 50)]
-    private ?string $author = null;
 
     #[ORM\Column]
     private bool $isPublished;
@@ -58,6 +48,12 @@ class Wish
 
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $wishImage = null;
+
+    #[ORM\ManyToOne(inversedBy: 'wishes')]
+    private ?Category $category = null;
+
+    #[ORM\ManyToOne(inversedBy: 'wishes')]
+    private ?User $user = null;
 
     public function getId(): ?int
     {
@@ -84,18 +80,6 @@ class Wish
     public function setDescription(string $description): static
     {
         $this->description = $description;
-
-        return $this;
-    }
-
-    public function getAuthor(): ?string
-    {
-        return $this->author;
-    }
-
-    public function setAuthor(string $author): static
-    {
-        $this->author = $author;
 
         return $this;
     }
@@ -156,6 +140,30 @@ class Wish
     public function setWishImage(?string $wishImage): static
     {
         $this->wishImage = $wishImage;
+
+        return $this;
+    }
+
+    public function getCategory(): ?Category
+    {
+        return $this->category;
+    }
+
+    public function setCategory(?Category $category): static
+    {
+        $this->category = $category;
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }

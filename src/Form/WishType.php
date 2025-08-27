@@ -2,8 +2,13 @@
 
 namespace App\Form;
 
+use App\Entity\Category;
+use App\Entity\User;
 use App\Entity\Wish;
+use App\Repository\CategoryRepository;
+use App\Repository\UserRepository;
 use Faker\Provider\Text;
+use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\CheckboxType;
 use Symfony\Component\Form\Extension\Core\Type\DateType;
@@ -23,8 +28,6 @@ class WishType extends AbstractType
                 'error_bubbling' => true])
             ->add('description', TextareaType::class, [
                 'error_bubbling' => true] )
-            ->add('author', TextType::class, [
-                'error_bubbling' => true] )
             ->add('wishImage', FileType::class, [
                 'mapped' => false,
                 'label' => "Image",
@@ -32,13 +35,18 @@ class WishType extends AbstractType
                     new Image(
                         maxSize: '1M',
                         maxSizeMessage: 'Maximum file size is 2 MB',
-                        extensions: [
-                            'image/jpeg',
-                            'image/png'
+                        extensions: ['png', 'jpg', 'jpeg', 'gif'
                         ],
                         extensionsMessage: 'Only jpeg, png, jpg files are allowed'
                     )
                 ]
+            ])
+            ->add('category', EntityType::class, [
+                'class' => Category::class,
+                'choice_label' => 'name',
+                'query_builder' => function (CategoryRepository $er) {
+                    return $er->createQueryBuilder('c')->addOrderBy('c.name');
+                }
             ]);
     }
 

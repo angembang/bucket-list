@@ -4,6 +4,8 @@ namespace App\Controller;
 
 use App\Entity\Wish;
 use App\Form\WishType;
+use App\Repository\CategoryRepository;
+use App\Repository\UserRepository;
 use App\Repository\WishRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -11,21 +13,23 @@ use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/wish', name: 'wish_')]
     final class WishController extends AbstractController
 {
     #[Route('', name: 'list')]
-    public function wishList(WishRepository $wishRepository): Response
+    public function wishList(WishRepository $wishRepository, CategoryRepository $categoryRepository): Response
     {
-        //$wishes = $wishRepository->findBy(['isPublished' => true], ['dateCreated' => 'DESC']);
-        $wishes = $wishRepository->findAll();
+        $categories = $categoryRepository->findAll();
+
         return $this->render('wish/list.html.twig', [
-            'wishes' => $wishes
+            'categories' => $categories
         ]);
     }
 
-    #[Route('/detail/{id}', name: 'detail', requirements:['id' => '\d+'])]
+
+    #[Route('/{id}', name: 'detail', requirements:['id' => '\d+'])]
     public function wishDetail(int $id, WishRepository $wishRepository): Response {
         $wish = $wishRepository->find($id);
         if(!$wish) {
@@ -37,8 +41,12 @@ use Symfony\Component\Routing\Attribute\Route;
     }
 
     #[Route('/add', name: 'add')]
-    public function createWish(EntityManagerInterface $manager, Request $request): Response {
+    public function createWish(EntityManagerInterface $manager, Request $request, CategoryRepository $categoryRepository, UserRepository $userRepository, int $id = null): Response {
         $wish = new Wish();
+        if($id) {
+            $category = $categoryRepository->find($id);
+            $wish->setCategory($category);
+        }
         $wishForm = $this->createForm(WishType::class, $wish);
         $wishForm->handlerequest($request);
         if($wishForm->isSubmitted() && $wishForm->isValid()) {
@@ -50,6 +58,7 @@ use Symfony\Component\Routing\Attribute\Route;
             $newFilename = uniqid() . '.' . $image->guessExtension();
             $image->move('uploads/wish', $newFilename);
             $wish->setWishImage($newFilename);
+            $wish->setUser($this->getUser());
             $manager->persist($wish);
             $manager->flush();
             $this->addFlash("success", "Wish added successfully");
@@ -62,7 +71,7 @@ use Symfony\Component\Routing\Attribute\Route;
 
     }
 
-    #[Route('update/{id}', name: 'update', requirements:['id' => '\d+'])]
+    #[Route('/update/{id}', name: 'update', requirements:['id' => '\d+'])]
     public function updateWish(Request $request, EntityManagerInterface $manager, WishRepository $wishRepository, int $id): Response {
         $wish = $wishRepository->find($id);
         // Check if the wish is retrieved
@@ -84,11 +93,11 @@ use Symfony\Component\Routing\Attribute\Route;
     }
 
     #[Route('/delete/{id}', name: 'delete', requirements:['id' => '\d+'])]
-    public function deleteWish(Request $request, EntityManagerInterface $manager ,WishRepository $wishRepository, int $id): Response {
-        $wish = $wishRepository->find($id);
-        if(!$wish) {
-            throw $this->createNotFoundException('Wish not found');
-        }
+    #[IsGranted("ROLE_ADMIN", 'wish')]
+    public function deleteWish(Request $request, EntityManagerInterface $manager ,WishRepository $wishRepository, Wish $wish): Response {
+        //if(!$wish) {
+            //throw $this->createNotFoundException('Wish not found');
+        //}
         $manager->remove($wish);
         $manager->flush();
         $this->addFlash("success", "Wish deleted successfully");
